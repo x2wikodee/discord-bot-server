@@ -1,0 +1,437 @@
+{
+  "guild_id": 1449393836978868267,
+  "guild_name": "|||||||||||||||||||||||||||||||",
+  "categories": [
+    {
+      "name": "ʜɪᴅᴇ",
+      "position": 0,
+      "channels": [
+        {
+          "name": "🔫︱ᴠᴀʟᴏʀᴀɴᴛ-ᴘᴀᴛᴄʜ",
+          "id": 1449408438458388611,
+          "type": "news",
+          "position": 2,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": ".",
+      "position": 1,
+      "channels": [
+        {
+          "name": "👋・ᴡᴇʟᴄᴏᴍᴇ",
+          "id": 1449431830360227912,
+          "type": "text",
+          "position": 3,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🕊️・ɢᴏᴏᴅʙʏᴇ",
+          "id": 1449432553063714917,
+          "type": "text",
+          "position": 4,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": "💡︱ ʜᴇʟᴘ ᴄᴇɴᴛᴇʀ",
+      "position": 2,
+      "channels": [
+        {
+          "name": "❓・ꜰᴀǫ",
+          "id": 1449558956111298751,
+          "type": "forum",
+          "position": 5,
+          "topic": "‎",
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": "📑︱ꜰᴇᴇᴅ",
+      "position": 3,
+      "channels": [
+        {
+          "name": "✨︱sᴛᴇᴀᴍ-ғʀᴇᴇ-ɢᴀᴍᴇ",
+          "id": 1449401367390191723,
+          "type": "news",
+          "position": 6,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "✨︱ᴇᴘɪᴄ-ғʀᴇᴇ-ɢᴀᴍᴇ",
+          "id": 1503620802598273034,
+          "type": "news",
+          "position": 7,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "✨︱ɢᴏɢ-ғʀᴇᴇ-ɢᴀᴍᴇ",
+          "id": 1503622246315327609,
+          "type": "news",
+          "position": 8,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🌊︱ᴡᴜᴡᴀ-ᴘᴀᴛᴄʜ-ɴᴏᴛᴇꜱ",
+          "id": 1449405671392153600,
+          "type": "news",
+          "position": 9,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "⛏️︱ᴍɪɴᴇᴄʀᴀꜰᴛ-ᴜᴘᴅᴀᴛᴇꜱ",
+          "id": 1449407262798909501,
+          "type": "news",
+          "position": 10,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "💣︱ᴄᴏᴜɴᴛᴇʀ-ꜱᴛʀɪᴋᴇ-2-ᴘᴀᴛᴄʜ",
+          "id": 1449409042928763052,
+          "type": "news",
+          "position": 11,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "⚔️︱ᴏᴠᴇʀᴡᴀᴛᴄʜ-ᴘᴀᴛᴄʜᴇs",
+          "id": 1503629092724019281,
+          "type": "news",
+          "position": 12,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🤖︱ᴄʜᴀᴛɢᴘᴛ-ʀᴇʟᴇᴀsᴇ-ɴᴏᴛᴇs",
+          "id": 1503623637461106688,
+          "type": "news",
+          "position": 13,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🤖︱ɢᴇᴍɪɴɪ-ʀᴇʟᴇᴀsᴇ-ɴᴏᴛᴇs",
+          "id": 1503624057243828284,
+          "type": "news",
+          "position": 14,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🤖︱ᴄʟᴀᴜᴅᴇ-ʀᴇʟᴇᴀsᴇ-ɴᴏᴛᴇs",
+          "id": 1503624433301192865,
+          "type": "news",
+          "position": 15,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🤖︱ᴏᴘᴇɴᴄʟᴀᴡ-ʀᴇʟᴇᴀsᴇ-ɴᴏᴛᴇs",
+          "id": 1503624908914036746,
+          "type": "news",
+          "position": 16,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🟢︱ɴᴠɪᴅɪᴀ-ɢᴇғᴏʀᴄᴇ-ᴅʀɪᴠᴇʀ-ᴘᴀᴛᴄʜᴇs",
+          "id": 1503626814164172810,
+          "type": "news",
+          "position": 17,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🔴︱ᴀᴍᴅ-ʀᴀᴅᴇᴏɴ-ᴅʀɪᴠᴇʀꜱ-ᴘᴀᴛᴄʜᴇꜱ",
+          "id": 1503627192964485162,
+          "type": "news",
+          "position": 18,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🔵︱ɪɴᴛᴇʟ-ᴀʀᴄ-ᴅʀɪᴠᴇʀ-ᴘᴀᴛᴄʜᴇs",
+          "id": 1503627531557929093,
+          "type": "news",
+          "position": 19,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": "⚽︱ꜰᴏᴏᴛʙᴀʟʟ",
+      "position": 4,
+      "channels": [
+        {
+          "name": "⚽︱ʟᴀ-ʟɪɢᴀ",
+          "id": 1449477891464368268,
+          "type": "news",
+          "position": 20,
+          "topic": "",
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "⚽︱ᴘʀᴇᴍɪᴇʀ-ʟᴇᴀɢᴜᴇ",
+          "id": 1449676456979464293,
+          "type": "news",
+          "position": 21,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🏆︱ᴜᴇғᴀ-ᴄʜᴀᴍᴘɪᴏɴs-ʟᴇᴀɢᴜᴇ",
+          "id": 1467410919909888143,
+          "type": "news",
+          "position": 22,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "⚽︱ᴡᴏʀʟᴅ-ᴄᴜᴘ",
+          "id": 1523988456576127028,
+          "type": "news",
+          "position": 23,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": "🎁ɢɪᴠᴇ ᴀᴡᴀʏ",
+      "position": 5,
+      "channels": [
+        {
+          "name": "📦︱ᴍᴏᴅᴅᴇᴅ-ᴀᴘᴋs",
+          "id": 1529879998360453260,
+          "type": "news",
+          "position": 24,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "📦︱ꜰʀᴇᴇᴍɪᴜᴍ",
+          "id": 1529880267987353711,
+          "type": "text",
+          "position": 25,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": "💬︱ᴄʜᴀᴛ",
+      "position": 6,
+      "channels": [
+        {
+          "name": "💬︱ɢᴇɴᴇʀᴀʟ-ᴄʜᴀᴛ",
+          "id": 1449393841802055796,
+          "type": "text",
+          "position": 26,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🖼️︱ɪᴍᴀɢᴇ-ᴄʜᴀᴛ",
+          "id": 1449442196192235761,
+          "type": "text",
+          "position": 27,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🎬︱ᴠɪᴅᴇᴏ-ᴄʟɪᴘꜱ",
+          "id": 1449536653222875156,
+          "type": "text",
+          "position": 28,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "📚︱ᴡᴏʀᴋꜱ",
+          "id": 1449526565426696343,
+          "type": "text",
+          "position": 29,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🎭︱ᴍᴇᴍᴇ-ᴄᴇɴᴛᴇʀ",
+          "id": 1449536607043588227,
+          "type": "text",
+          "position": 30,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": "🔊 ︱ᴠᴏɪᴄᴇ ᴄʜᴀᴛ",
+      "position": 7,
+      "channels": [
+        {
+          "name": "🎙️︱ᴊᴏɪɴ ᴛᴏ ᴄʀᴇᴀᴛᴇ",
+          "id": 1449426827587092582,
+          "type": "voice",
+          "position": 0,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": "⚙️ ︱ʙᴏᴛ ᴄᴏᴍᴍᴀɴᴅꜱ",
+      "position": 8,
+      "channels": [
+        {
+          "name": "⚙️︱ʙᴏᴛ-ᴄᴍᴅꜱ",
+          "id": 1449437366316961853,
+          "type": "text",
+          "position": 31,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        },
+        {
+          "name": "🤖︱ᴀɪ-ᴄʜᴀᴛ",
+          "id": 1530547436244832337,
+          "type": "text",
+          "position": 33,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    },
+    {
+      "name": "ʙʏᴘᴀss",
+      "position": 9,
+      "channels": [
+        {
+          "name": "⚡︱ʙʏᴘᴀss",
+          "id": 1530621215247700000,
+          "type": "text",
+          "position": 34,
+          "topic": null,
+          "nsfw": false,
+          "slowmode_delay": 0
+        }
+      ]
+    }
+  ],
+  "uncategorized_channels": [
+    {
+      "name": ".",
+      "id": 1449774291381125160,
+      "type": "category",
+      "position": 1
+    },
+    {
+      "name": "⚙️ ︱ʙᴏᴛ ᴄᴏᴍᴍᴀɴᴅꜱ",
+      "id": 1449402615371927663,
+      "type": "category",
+      "position": 8
+    },
+    {
+      "name": "🎁ɢɪᴠᴇ ᴀᴡᴀʏ",
+      "id": 1529879206152896656,
+      "type": "category",
+      "position": 5
+    },
+    {
+      "name": "💡︱ ʜᴇʟᴘ ᴄᴇɴᴛᴇʀ",
+      "id": 1449558815761633380,
+      "type": "category",
+      "position": 2
+    },
+    {
+      "name": "📑︱ꜰᴇᴇᴅ",
+      "id": 1449399742294659222,
+      "type": "category",
+      "position": 3
+    },
+    {
+      "name": "rules",
+      "id": 1449399251749834893,
+      "type": "text",
+      "position": 1
+    },
+    {
+      "name": "🔊 ︱ᴠᴏɪᴄᴇ ᴄʜᴀᴛ",
+      "id": 1449426826911813702,
+      "type": "category",
+      "position": 7
+    },
+    {
+      "name": "💬︱ᴄʜᴀᴛ",
+      "id": 1449393841802055794,
+      "type": "category",
+      "position": 6
+    },
+    {
+      "name": "moderator-only",
+      "id": 1449399251749834896,
+      "type": "text",
+      "position": 0
+    },
+    {
+      "name": "⚽︱ꜰᴏᴏᴛʙᴀʟʟ",
+      "id": 1449479831770239197,
+      "type": "category",
+      "position": 4
+    },
+    {
+      "name": "ʜɪᴅᴇ",
+      "id": 1529878494056681603,
+      "type": "category",
+      "position": 0
+    },
+    {
+      "name": "ʙʏᴘᴀss",
+      "id": 1530235005089873992,
+      "type": "category",
+      "position": 9
+    }
+  ]
+}
