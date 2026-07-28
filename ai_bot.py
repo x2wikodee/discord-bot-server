@@ -38,9 +38,42 @@ async def on_ready():
             print(f"Synced {len(synced)} slash commands for AI bot in {guild.name}")
     except Exception as e:
         print(f"Failed sync: {e}")
-    await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ai เพื่อใช้งาน AI"))
+    await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ai หรือ /ask เพื่อคุยกับ AI"))
 
-# --- Slash Command 1: /ai (บังคับใช้คำสั่ง / เท่านั้น) ---
+# --- Slash Command: /setup_aichat (ส่งและปักหมุดการ์ดวิธีใช้งานในช่อง AI) ---
+@bot.tree.command(name="setup_aichat", description="ส่งและปักหมุดการ์ดคู่มือวิธีใช้งาน AI Chat ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ")
+async def slash_setup_aichat(interaction: discord.Interaction):
+    guild = interaction.guild
+    channel = interaction.channel
+
+    embed = discord.Embed(
+        title="🤖 คู่มือการใช้งาน AI CHAT BOT (24/7 CLOUD AI)",
+        description=(
+            "ยินดีต้อนรับสู่ระบบปัญญาประดิษฐ์ **AI Assistant 24 ชั่วโมง**!\n"
+            "ระบบขับเคลื่อนด้วยโมเดล **MiniMax M3** ทำงานผ่านคลาวด์บน AWS EC2 ตลอด 24 ชม.\n\n"
+            "📌 **วิธีใช้งานคำสั่ง AI (บังคับใช้ Slash Command):**\n"
+            "1️⃣ พิมพ์คำสั่ง **`/ai [คำถามของคุณ]`** ➡️ เพื่อส่งคำถามให้ AI ตอบ\n"
+            "2️⃣ พิมพ์คำสั่ง **`/ask [คำถามของคุณ]`** ➡️ เพื่อถามข้อสงสัยทั่วไป\n\n"
+            "✨ **ความสามารถของ AI:**\n"
+            "• ตอบคำถามทั่วไป เขียนโปรแกรม แปลภาษา สรุปเนื้อหา\n"
+            "• ให้คำแนะนำและแก้ไขข้อผิดพลาดทางเทคนิคได้ทันที"
+        ),
+        color=discord.Color.blue()
+    )
+    embed.set_footer(text="ระบบ AI Assistant 24/7 Automatic Response")
+
+    msg = await channel.send(embed=embed)
+    try:
+        await msg.pin()
+    except Exception:
+        pass
+
+    await interaction.response.send_message(
+        f"✅ **ส่งการ์ดคู่มือและปักหมุดวิธีใช้งาน AI ในช่อง {channel.mention} เรียบร้อยแล้ว!**",
+        ephemeral=True
+    )
+
+# --- Slash Command 1: /ai ---
 @bot.tree.command(name="ai", description="ถามตอบกับ AI อัตโนมัติ")
 async def slash_ai(interaction: discord.Interaction, prompt: str):
     await interaction.response.defer()
