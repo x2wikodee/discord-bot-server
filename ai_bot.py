@@ -15,14 +15,14 @@ TOKEN = os.getenv("AI_DISCORD_TOKEN") or os.getenv("DISCORD_TOKEN")
 NINEROUTER_URL = os.getenv("NINEROUTER_URL", "https://xkiro.com/v1").strip()
 NINEROUTER_KEY = os.getenv("NINEROUTER_KEY", "").strip()
 
-# ปรับแก้ให้รองรับทั้ง URL ที่มี /v1 และไม่มี /v1 ไม่ให้เกิด 404 (ดับเบิล /v1/v1)
 BASE_URL = NINEROUTER_URL.rstrip('/')
 if BASE_URL.endswith('/v1'):
     AI_ENDPOINT = f"{BASE_URL}/chat/completions"
 else:
     AI_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
 
-MODEL_NAME = os.getenv("AI_MODEL_NAME", "gpt-4o-mini")
+# อ่านชื่อโมเดลจาก .env (ค่าเริ่มต้นใช้ gpt-3.5-turbo)
+MODEL_NAME = os.getenv("AI_MODEL_NAME", "gpt-3.5-turbo").strip()
 
 intents = discord.Intents.default()
 try:
@@ -36,6 +36,7 @@ bot = commands.Bot(command_prefix="?", intents=intents, help_command=None)
 async def on_ready():
     print(f"🤖 Dedicated AI Bot Connected: {bot.user}")
     print(f"AI Endpoint Target: {AI_ENDPOINT}")
+    print(f"AI Model Name Target: {MODEL_NAME}")
     try:
         for guild in bot.guilds:
             bot.tree.copy_global_to(guild=guild)
