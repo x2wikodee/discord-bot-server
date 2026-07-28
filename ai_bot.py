@@ -11,19 +11,18 @@ if sys.platform == "win32":
 
 load_dotenv()
 
-# Token สำหรับบอท AI โดยเฉพาะ
 TOKEN = os.getenv("AI_DISCORD_TOKEN") or os.getenv("DISCORD_TOKEN")
-NINEROUTER_URL = os.getenv("NINEROUTER_URL", "https://openrouter.ai/api").strip()
+NINEROUTER_URL = os.getenv("NINEROUTER_URL", "https://xkiro.com/v1").strip()
 NINEROUTER_KEY = os.getenv("NINEROUTER_KEY", "").strip()
 
+# ปรับแก้ให้รองรับทั้ง URL ที่มี /v1 และไม่มี /v1 ไม่ให้เกิด 404 (ดับเบิล /v1/v1)
 BASE_URL = NINEROUTER_URL.rstrip('/')
-if not BASE_URL.endswith('/v1'):
-    AI_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
-else:
+if BASE_URL.endswith('/v1'):
     AI_ENDPOINT = f"{BASE_URL}/chat/completions"
+else:
+    AI_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
 
-# กำหนดโมเดล AI (รองรับทั้งโมเดลฟรี OpenRouter และ 9Router)
-MODEL_NAME = os.getenv("AI_MODEL_NAME", "meta-llama/llama-3.1-8b-instruct:free")
+MODEL_NAME = os.getenv("AI_MODEL_NAME", "gpt-4o-mini")
 
 intents = discord.Intents.default()
 try:
@@ -36,13 +35,14 @@ bot = commands.Bot(command_prefix="?", intents=intents, help_command=None)
 @bot.event
 async def on_ready():
     print(f"🤖 Dedicated AI Bot Connected: {bot.user}")
+    print(f"AI Endpoint Target: {AI_ENDPOINT}")
     try:
         for guild in bot.guilds:
             bot.tree.copy_global_to(guild=guild)
             await bot.tree.sync(guild=guild)
     except Exception as e:
         print(f"Failed sync: {e}")
-    await bot.change_presence(activity=discord.Game(name="🤖 แท็กหาฉันเพื่อคุยกับ AI 24 ชม."))
+    await bot.change_presence(activity=discord.Game(name="🤖 คุยตอบ AI 24 ชม. ผ่าน Cloud"))
 
 @bot.event
 async def on_message(message):
@@ -73,7 +73,7 @@ async def on_message(message):
                     reply = res.json()["choices"][0]["message"]["content"]
                     await message.reply(reply[:2000])
                 else:
-                    await message.reply(f"❌ AI Status Error ({res.status_code})")
+                    await message.reply(f"❌ AI Status Error ({res.status_code}): {res.text[:150]}")
             except Exception as e:
                 await message.reply(f"❌ AI Connection Error: {e}")
 
@@ -97,7 +97,7 @@ async def slash_ask(interaction: discord.Interaction, question: str):
             reply = res.json()["choices"][0]["message"]["content"]
             await interaction.followup.send(reply[:2000])
         else:
-            await interaction.followup.send(f"❌ AI Status Error ({res.status_code})")
+            await interaction.followup.send(f"❌ AI Status Error ({res.status_code}): {res.text[:150]}")
     except Exception as e:
         await interaction.followup.send(f"❌ AI Error: {e}")
 
