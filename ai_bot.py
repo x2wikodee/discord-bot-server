@@ -33,43 +33,16 @@ async def on_ready():
     print(f"AI Model Name Target: {MODEL_NAME}")
     try:
         for guild in bot.guilds:
+            # เคลียร์คำสั่งค้างเก่าทิ้งทั้งหมด ให้เหลือแค่ /ask เดียว 100%
             bot.tree.clear_commands(guild=guild)
             bot.tree.copy_global_to(guild=guild)
             synced = await bot.tree.sync(guild=guild)
-            print(f"Synced {len(synced)} slash commands cleanly for AI bot in {guild.name}")
+            print(f"Synced {len(synced)} slash command cleanly for AI bot in {guild.name}")
     except Exception as e:
         print(f"Failed sync: {e}")
     await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
 
-# --- Slash Command 1: /setup_aichat (การ์ดมินิมอล กระชับ สะอาด) ---
-@bot.tree.command(name="setup_aichat", description="ส่งและปักหมุดการ์ดคู่มือวิธีใช้งาน AI Chat ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ")
-async def slash_setup_aichat(interaction: discord.Interaction):
-    guild = interaction.guild
-    channel = interaction.channel
-
-    embed = discord.Embed(
-        title="🤖 คู่มือการใช้งาน AI CHAT BOT",
-        description=(
-            "📌 **วิธีใช้งานคำสั่ง AI:**\n"
-            "👉 พิมพ์คำสั่ง **`/ask [คำถามของคุณ]`** ➡️ เพื่อส่งคำถามให้ AI ตอบทันที\n\n"
-            "✨ **ความสามารถ:**\n"
-            "• ตอบคำถามทั่วไป เขียนโปรแกรม แปลภาษา และสรุปเนื้อหา"
-        ),
-        color=discord.Color.blue()
-    )
-
-    msg = await channel.send(embed=embed)
-    try:
-        await msg.pin()
-    except Exception:
-        pass
-
-    await interaction.response.send_message(
-        f"✅ **ส่งการ์ดคู่มือและปักหมุดวิธีใช้งาน AI ในช่อง {channel.mention} เรียบร้อยแล้ว!**",
-        ephemeral=True
-    )
-
-# --- Slash Command 2: /ask (คำสั่งหลักตัวเดียว) ---
+# --- Slash Command เพียงตัวเดียว: /ask ---
 @bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ")
 async def slash_ask(interaction: discord.Interaction, question: str):
     await interaction.response.defer()
