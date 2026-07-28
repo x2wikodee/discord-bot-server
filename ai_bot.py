@@ -1,5 +1,6 @@
 import sys
 import os
+import gc
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -23,8 +24,17 @@ else:
 
 MODEL_NAME = os.getenv("AI_MODEL_NAME", "minimax/minimax-m3").strip()
 
+# --- Memory RAM Optimization for AI Bot ---
 intents = discord.Intents.default()
-bot = commands.Bot(command_prefix="?", intents=intents, help_command=None)
+cache_flags = discord.MemberCacheFlags.none()
+
+bot = commands.Bot(
+    command_prefix="?",
+    intents=intents,
+    member_cache_flags=cache_flags,
+    max_messages=None,  # ปิดการเก็บประวัติข้อความค้างใน RAM
+    help_command=None
+)
 
 @bot.event
 async def on_ready():
@@ -33,13 +43,13 @@ async def on_ready():
     print(f"AI Model Name Target: {MODEL_NAME}")
     try:
         for guild in bot.guilds:
-            # เคลียร์คำสั่งค้างเก่าทิ้งทั้งหมด ให้เหลือแค่ /ask เดียว 100%
             bot.tree.clear_commands(guild=guild)
             bot.tree.copy_global_to(guild=guild)
             synced = await bot.tree.sync(guild=guild)
             print(f"Synced {len(synced)} slash command cleanly for AI bot in {guild.name}")
     except Exception as e:
         print(f"Failed sync: {e}")
+    gc.collect()  # เคลียร์ Memory Garbage Collection
     await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
 
 # --- Slash Command เพียงตัวเดียว: /ask ---
@@ -63,6 +73,7 @@ async def slash_ask(interaction: discord.Interaction, question: str):
             await interaction.followup.send(f"❌ AI Status Error ({res.status_code}): {res.text[:150]}")
     except Exception as e:
         await interaction.followup.send(f"❌ AI Error: {e}")
+    gc.collect()
 
 if __name__ == "__main__":
     if not TOKEN:
