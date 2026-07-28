@@ -38,9 +38,9 @@ async def on_ready():
             print(f"Synced {len(synced)} slash commands for AI bot in {guild.name}")
     except Exception as e:
         print(f"Failed sync: {e}")
-    await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ai หรือ /ask เพื่อคุยกับ AI"))
+    await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
 
-# --- Slash Command: /setup_aichat (ส่งและปักหมุดการ์ดวิธีใช้งานในช่อง AI) ---
+# --- Slash Command 1: /setup_aichat (ส่งการ์ดคู่มือเฉพาะคำสั่ง /ask) ---
 @bot.tree.command(name="setup_aichat", description="ส่งและปักหมุดการ์ดคู่มือวิธีใช้งาน AI Chat ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ")
 async def slash_setup_aichat(interaction: discord.Interaction):
     guild = interaction.guild
@@ -51,9 +51,8 @@ async def slash_setup_aichat(interaction: discord.Interaction):
         description=(
             "ยินดีต้อนรับสู่ระบบปัญญาประดิษฐ์ **AI Assistant 24 ชั่วโมง**!\n"
             "ระบบขับเคลื่อนด้วยโมเดล **MiniMax M3** ทำงานผ่านคลาวด์บน AWS EC2 ตลอด 24 ชม.\n\n"
-            "📌 **วิธีใช้งานคำสั่ง AI (บังคับใช้ Slash Command):**\n"
-            "1️⃣ พิมพ์คำสั่ง **`/ai [คำถามของคุณ]`** ➡️ เพื่อส่งคำถามให้ AI ตอบ\n"
-            "2️⃣ พิมพ์คำสั่ง **`/ask [คำถามของคุณ]`** ➡️ เพื่อถามข้อสงสัยทั่วไป\n\n"
+            "📌 **วิธีใช้งานคำสั่ง AI:**\n"
+            "👉 พิมพ์คำสั่ง **`/ask [คำถามของคุณ]`** ➡️ เพื่อส่งคำถามให้ AI ตอบทันที\n\n"
             "✨ **ความสามารถของ AI:**\n"
             "• ตอบคำถามทั่วไป เขียนโปรแกรม แปลภาษา สรุปเนื้อหา\n"
             "• ให้คำแนะนำและแก้ไขข้อผิดพลาดทางเทคนิคได้ทันที"
@@ -73,29 +72,7 @@ async def slash_setup_aichat(interaction: discord.Interaction):
         ephemeral=True
     )
 
-# --- Slash Command 1: /ai ---
-@bot.tree.command(name="ai", description="ถามตอบกับ AI อัตโนมัติ")
-async def slash_ai(interaction: discord.Interaction, prompt: str):
-    await interaction.response.defer()
-    headers = {"Content-Type": "application/json"}
-    if NINEROUTER_KEY:
-        headers["Authorization"] = f"Bearer {NINEROUTER_KEY}"
-    payload = {
-        "model": MODEL_NAME,
-        "messages": [{"role": "user", "content": prompt}],
-        "stream": False
-    }
-    try:
-        res = requests.post(AI_ENDPOINT, json=payload, headers=headers, timeout=60)
-        if res.status_code == 200:
-            reply = res.json()["choices"][0]["message"]["content"]
-            await interaction.followup.send(reply[:2000])
-        else:
-            await interaction.followup.send(f"❌ AI Status Error ({res.status_code}): {res.text[:150]}")
-    except Exception as e:
-        await interaction.followup.send(f"❌ AI Error: {e}")
-
-# --- Slash Command 2: /ask ---
+# --- Slash Command 2: /ask (คำสั่งหลักตัวเดียว) ---
 @bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ")
 async def slash_ask(interaction: discord.Interaction, question: str):
     await interaction.response.defer()
