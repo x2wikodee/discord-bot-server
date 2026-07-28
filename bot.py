@@ -46,7 +46,6 @@ def write_log(message: str):
 
 write_log("--- Discord Bot Initializing ---")
 
-# ใช้ default intents โดยไม่เปิด Privileged Intents (ไม่ส่งผลกระทบต่อปุ่มและคำสั่ง)
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -100,7 +99,7 @@ def is_slash_guild_owner():
 
 @bot.event
 async def on_ready():
-    bot.add_view(VerifyView()) # ลงทะเบียน View ปุ่มกดให้ทำงานถาวร
+    bot.add_view(VerifyView())
     msg = f"Bot connected successfully: {bot.user}"
     print(msg)
     write_log(msg)
@@ -123,7 +122,6 @@ async def on_message(message):
         await bot.process_commands(message)
         return
 
-    # หากอยู่ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ (หรือ AI-CHAT / ai-chat)
     c_name = message.channel.name.lower().replace(" ", "").replace("_", "-")
     if "ai-chat" in c_name or "aichat" in c_name or "ᴀɪ-ᴄʜᴀᴛ" in message.channel.name:
         if message.author.id != bot.user.id and (message.author.bot or message.webhook_id is not None or message.interaction is not None):
@@ -179,6 +177,7 @@ async def sync(ctx):
 @bot.tree.command(name="help", description="ดูคำสั่งทั้งหมดของบอท")
 async def slash_help(interaction: discord.Interaction):
     embed = discord.Embed(title="🤖 คำสั่งควบคุมเซิร์ฟเวอร์", color=discord.Color.blue())
+    embed.add_field(name="/setup_bot_roles", value="สร้างและแจกยศจัดหมวดหมู่บอทแต่ละตัวใน Member List ให้เป็นระเบียบสวยงาม", inline=False)
     embed.add_field(name="/setup_verify", value="สร้างการ์ดระบบยืนยันตัวตนกดปุ่มรับยศสมาชิกในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
     embed.add_field(name="/backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
     embed.add_field(name="/restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
@@ -196,7 +195,64 @@ async def slash_help(interaction: discord.Interaction):
     embed.add_field(name="/clear", value="ลบข้อความ (เฉพาะแอดมิน)", inline=False)
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-# --- Slash Command: /setup_verify (สร้างระบบกดปุ่มยืนยันตัวตนรับยศ) ---
+# --- Slash Command: /setup_bot_roles (สร้างและแจกยศจัดหมวดหมู่บอทแต่ละประเภท) ---
+@bot.tree.command(name="setup_bot_roles", description="สร้างและแจกยศจัดหมวดหมู่แยกประเภทบอทในรายชื่อสมาชิกให้สวยงาม")
+@is_slash_guild_owner()
+async def slash_setup_bot_roles(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
+    guild = interaction.guild
+
+    # นิยามหมวดหมู่ยศบอท สี และเงื่อนไขการแจก
+    role_definitions = [
+        ("👑︱SERVER ADMIN BOT", discord.Color.gold(), ["mbeumo", "admin"]),
+        ("🤖︱AI ASSISTANT", discord.Color.green(), ["ai"]),
+        ("🎵︱MUSIC & VOICE BOTS", discord.Color.purple(), ["jockie", "rythm", "tempvoice"]),
+        ("🎮︱GAME & FEED BOTS", discord.Color.orange(), ["patchbot", "wuwa", "freestuff"]),
+        ("⚽︱SPORTS BOTS", discord.Color.teal(), ["football nation", "soccer guru"]),
+        ("🛠︱UTILITY & BYPASS BOTS", discord.Color.blue(), ["probot", "invite tracker", "zen bypass", "bypass.link", "readybot"])
+    ]
+
+    created_roles = {}
+    assigned_count = 0
+
+    # 1. สร้างยศแยกกลุ่มบอท (Hoist = True เพื่อแสดงแยกแถบสมาชิก)
+    for r_name, r_color, keywords in role_definitions:
+        role = discord.utils.get(guild.roles, name=r_name)
+        if not role:
+            role = await guild.create_role(name=r_name, color=r_color, hoist=True)
+        else:
+            await role.edit(color=r_color, hoist=True)
+        created_roles[r_name] = (role, keywords)
+
+    # 2. ค้นหาและแจกยศให้บอทแต่ละตัวโดยอัตโนมัติ
+    for member in guild.members:
+        if not member.bot:
+            continue
+
+        b_name = member.name.lower()
+        b_disp = member.display_name.lower()
+
+        for r_name, (role, keywords) in created_roles.items():
+            for kw in keywords:
+                if kw in b_name or kw in b_disp:
+                    if role not in member.roles:
+                        try:
+                            await member.add_roles(role)
+                            assigned_count += 1
+                        except Exception:
+                            pass
+                    break
+
+    await interaction.followup.send(
+        f"✅ **สร้างและจัดหมวดหมู่ยศบอทสำเร็จเรียบร้อย!**\n"
+        f"👑 สร้างยศจัดกลุ่มบอท: **{len(role_definitions)} กลุ่มยศ**\n"
+        f"🏷️ แจกยศแยกประเภทให้บอท: **{assigned_count} ครั้ง**\n"
+        f"✨ รายชื่อบอททางด้านขวาจะถูกแยกกลุ่มเป็นระเบียบสวยงาม 100% แล้วครับ!",
+        ephemeral=True
+    )
+    write_log("setup_bot_roles executed successfully.")
+
+# --- Slash Command: /setup_verify ---
 @bot.tree.command(name="setup_verify", description="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนอัตโนมัติในช่อง ✅︱ᴠᴇʀɪꜰʏ")
 @is_slash_guild_owner()
 async def slash_setup_verify(interaction: discord.Interaction):
@@ -523,7 +579,7 @@ async def slash_organize_existing_server(interaction: discord.Interaction):
     # 4. สร้างช่องที่ยังขาดเพิ่มให้อีก
     desired_new = [
         ("📌︱ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ & ᴡᴇʟᴄᴏᴍᴇ", ["📢︱ᴀɴɴᴏᴜɴᴄᴇᴍᴇɴᴛꜱ", "✅︱ᴠᴇʀɪꜰʏ", "❓︱ꜰᴀǫ"]),
-        ("⚽︱ꜰᴏᴏᴛʙᴀʟʟ", ["⚽︱ꜰᴏᴏᴛʙᴀʟʟ-ɢᴇɴᴇʀᴀʟ", "🇮🇹︱ꜱᴇʀɪᴇ-ᴀ", "🇩🇪︱ʙᴜɴᴅesʟɪɢᴀ", "📊︱ꜱᴛᴀɴᴅɪɴɢꜱ-ꜱᴛᴀᴛꜱ"]),
+        ("⚽︱ꜰᴏᴏᴛʙᴀʟʟ", ["⚽︱ꜰᴏᴏᴛʙᴀʟʟ-ɢᴇɴᴇʀᴀʟ", "🇮🇹︱ꜱᴇʀɪᴇ-ᴀ", "🇩🇪︱ʙᴜɴᴅᴇꜱʟɪɢᴀ", "📊︱ꜱᴛᴀɴᴅɪɴɢꜱ-ꜱᴛᴀᴛꜱ"]),
         ("⚙️︱ʙᴏᴛꜱ & ᴄᴏᴍᴍᴀɴᴅꜱ", ["📊︱ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ"]),
         ("🔒︱ꜱᴛᴀꜰꜰ ᴏɴʟʏ", ["📋︱ᴍᴏᴅ-ᴀᴄᴛɪᴏɴꜱ", "⚙︱ꜱᴛᴀꜰꜰ-ᴄᴏᴍᴍᴀɴᴅꜱ"])
     ]
@@ -921,7 +977,7 @@ async def slash_ai(interaction: discord.Interaction, prompt: str):
         else:
             await interaction.followup.send(f"❌ AI Server Status Error ({res.status_code}): {res.text[:200]}", ephemeral=True)
     except Exception as e:
-        await interaction.followup.send(f"❌ AI Error: {e}", ephemeral=True)
+        await interaction.followup.send(f"❌ AI Error: {e}")
 
 # --- Slash Command: /say ---
 @bot.tree.command(name="say", description="ให้บอทพิมพ์ส่งข้อความที่คุณต้องการ")
@@ -943,6 +999,7 @@ async def slash_announce(interaction: discord.Interaction, title: str, message: 
     await interaction.channel.send(embed=embed)
     await interaction.response.send_message("✅ ส่งประกาศเรียบร้อยแล้ว", ephemeral=True)
 
+@slash_setup_bot_roles.error
 @slash_setup_verify.error
 @slash_backup_server.error
 @slash_restore_server.error
