@@ -26,8 +26,6 @@ def write_log(message: str):
     except Exception:
         pass
 
-# --- RAM Memory Optimization Settings ---
-# 1. ปิดระบบ Cache สมาชิก และปิด Cache ประวัติข้อความใน RAM เพื่อประหยัดพื้นที่ RAM 50%+
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -64,7 +62,7 @@ bot = commands.Bot(
     command_prefix="!",
     intents=intents,
     member_cache_flags=cache_flags,
-    max_messages=None,  # ไม่เก็บประวัติข้อความค้างใน RAM
+    max_messages=None,
     help_command=None
 )
 
@@ -88,21 +86,54 @@ async def on_ready():
             await bot.tree.sync(guild=guild)
     except Exception as e:
         print(f"Failed sync: {e}")
-    gc.collect()  # เคลียร์ Memory Garbage Collection
+    gc.collect()
     await bot.change_presence(activity=discord.Game(name="พิมพ์ / เพื่อใช้งานคำสั่ง"))
 
-# --- 7 Core Slash Commands ---
+# --- 8 Core Slash Commands ---
 @bot.tree.command(name="help", description="ดูคำสั่งทั้งหมดของ Admin Bot")
 async def slash_help(interaction: discord.Interaction):
     embed = discord.Embed(title="👑 Admin Bot - คำสั่งจัดการเซิร์ฟเวอร์", color=discord.Color.gold())
-    embed.add_field(name="1. /organize_existing_server", value="ย้ายจัดระเบียบช่องเดิมเป็น Smallcaps และรวม 15 ฟีดขยะเหลือ 4 ช่องหลัก", inline=False)
-    embed.add_field(name="2. /setup_verify", value="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
-    embed.add_field(name="3. /setup_bot_roles", value="สร้างและมอบยศเฉพาะตัวให้บอททุกตัว (1 บอท : 1 ยศ)", inline=False)
-    embed.add_field(name="4. /clean_webhooks", value="ลบและเคลียร์ Webhooks ขยะที่ค้างซ้ำซ้อนออกทั้งหมด", inline=False)
-    embed.add_field(name="5. /backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
-    embed.add_field(name="6. /restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
-    embed.add_field(name="7. /inspect_server", value="สแกนละเอียดทุกสิทธิ์ ยศ Webhooks บันทึกลง bot.log", inline=False)
+    embed.add_field(name="1. /setup_bypass_guide", value="ส่งและปักหมุดการ์ดคู่มือใช้งาน Zen Bypass ในช่อง ⚡︱ʙʏᴘᴀss", inline=False)
+    embed.add_field(name="2. /organize_existing_server", value="ย้ายจัดระเบียบช่องเดิมเป็น Smallcaps และรวม 15 ฟีดขยะเหลือ 4 ช่องหลัก", inline=False)
+    embed.add_field(name="3. /setup_verify", value="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
+    embed.add_field(name="4. /setup_bot_roles", value="สร้างและมอบยศเฉพาะตัวให้บอททุกตัว (1 บอท : 1 ยศ)", inline=False)
+    embed.add_field(name="5. /clean_webhooks", value="ลบและเคลียร์ Webhooks ขยะที่ค้างซ้ำซ้อนออกทั้งหมด", inline=False)
+    embed.add_field(name="6. /backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
+    embed.add_field(name="7. /restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
+    embed.add_field(name="8. /inspect_server", value="สแกนละเอียดทุกสิทธิ์ ยศ Webhooks บันทึกลง bot.log", inline=False)
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# --- Slash Command: /setup_bypass_guide ---
+@bot.tree.command(name="setup_bypass_guide", description="ส่งและปักหมุดการ์ดคู่มือวิธีใช้งาน Zen Bypass ในช่อง ⚡︱ʙʏᴘᴀss")
+@is_slash_guild_owner()
+async def slash_setup_bypass_guide(interaction: discord.Interaction):
+    channel = interaction.channel
+
+    embed = discord.Embed(
+        title="⚡ คู่มือการใช้งาน ZEN BYPASS BOT",
+        description=(
+            "📌 **วิธีใช้งานคำสั่งปลดล็อกลิงก์:**\n"
+            "👉 พิมพ์คำสั่ง **`/bypass url: [ใส่ลิงก์สั้น/ลิงก์ติดโฆษณา]`**\n\n"
+            "✨ **ตัวอย่างการพิมพ์:**\n"
+            "`/bypass url: https://link-to-unlock.com/xyz`\n\n"
+            "🛡️ **คำแนะนำ:**\n"
+            "• ผลลัพธ์จะส่งกลับให้คุณทันทีแบบส่วนตัว (Only you can see this)\n"
+            "• ช่วยปลดล็อกลิงก์โฆษณา ลิงก์ย่อ และลิงก์ติดดาวน์โหลดได้อย่างรวดเร็ว"
+        ),
+        color=discord.Color.green()
+    )
+    embed.set_footer(text="ระบบปลดล็อกลิงก์อัตโนมัติด้วย Zen Bypass")
+
+    msg = await channel.send(embed=embed)
+    try:
+        await msg.pin()
+    except Exception:
+        pass
+
+    await interaction.response.send_message(
+        f"✅ **ส่งการ์ดคู่มือและปักหมุดวิธีใช้งาน Zen Bypass ในช่อง {channel.mention} เรียบร้อยแล้ว!**",
+        ephemeral=True
+    )
 
 @bot.tree.command(name="organize_existing_server", description="รวม 15 ช่องฟีดเดิมเหลือ 4 ช่องหลัก และจัดดีไซน์ Smallcaps สวยงาม 100%")
 @is_slash_guild_owner()
