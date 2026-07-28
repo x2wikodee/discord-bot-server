@@ -33,14 +33,16 @@ async def on_ready():
     print(f"AI Model Name Target: {MODEL_NAME}")
     try:
         for guild in bot.guilds:
+            # เคลียร์คำสั่งเก่าค้างออก และ Sync เฉพาะ /ask และ /setup_aichat
+            bot.tree.clear_commands(guild=guild)
             bot.tree.copy_global_to(guild=guild)
             synced = await bot.tree.sync(guild=guild)
-            print(f"Synced {len(synced)} slash commands for AI bot in {guild.name}")
+            print(f"Synced {len(synced)} slash commands cleanly for AI bot in {guild.name}")
     except Exception as e:
         print(f"Failed sync: {e}")
     await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
 
-# --- Slash Command 1: /setup_aichat (ส่งการ์ดคู่มือเฉพาะคำสั่ง /ask) ---
+# --- Slash Command 1: /setup_aichat (ส่งและปักหมุดการ์ดคู่มือเฉพาะคำสั่ง /ask) ---
 @bot.tree.command(name="setup_aichat", description="ส่งและปักหมุดการ์ดคู่มือวิธีใช้งาน AI Chat ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ")
 async def slash_setup_aichat(interaction: discord.Interaction):
     guild = interaction.guild
