@@ -27,7 +27,10 @@ AI_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
 MODEL_NAME = "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
 
 intents = discord.Intents.default()
-intents.message_content = True
+try:
+    intents.message_content = True
+except Exception:
+    pass
 
 bot = commands.Bot(command_prefix="?", intents=intents, help_command=None)
 
@@ -47,7 +50,6 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    # ตอบกลับเมื่อมีคนแท็กหาบอท หรือคุยในช่อง ai-chat
     c_name = message.channel.name.lower()
     is_mentioned = bot.user in message.mentions
     is_ai_channel = "ai-chat" in c_name or "aichat" in c_name or "ᴀɪ-ᴄʜᴀᴛ" in message.channel.name
