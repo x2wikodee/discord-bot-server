@@ -1,6 +1,5 @@
 import sys
 import os
-import re
 import gc
 import asyncio
 import discord
@@ -24,13 +23,6 @@ def write_log(message: str):
             f.write(log_entry)
     except Exception:
         pass
-
-# Regex สำหรับตรวจจับ Custom Emojis, Unicode Emojis และ Links/URLs ทั้งหมด
-EMOJI_REGEX = re.compile(
-    r"<a?:[a-zA-Z0-9_]+:[0-9]+>|"
-    r"[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F1E0-\U0001F1FF\U00002600-\U000027BF\U0001F900-\U0001F9FF\U0001FA70-\U0001FAFF]"
-)
-URL_REGEX = re.compile(r"https?://\S+|www\.\S+", re.IGNORECASE)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -75,7 +67,7 @@ bot = commands.Bot(
 @bot.event
 async def on_ready():
     bot.add_view(VerifyView())
-    msg = f"Admin Bot connected: {bot.user} - Auto-mod for #🤖︱ᴀɪ-ᴄʜᴀᴛ active!"
+    msg = f"Admin Bot connected: {bot.user} - Strict /ask Auto-mod for #🤖︱ᴀɪ-ᴄʜᴀᴛ active!"
     print(msg)
     write_log(msg)
     
@@ -88,32 +80,29 @@ async def on_ready():
         print(f"Cleared all slash commands for Admin bot in {guild.name} (Remaining: {len(synced)})")
         
     gc.collect()
-    await bot.change_presence(activity=discord.Game(name="🛡️ ระบบ Auto-Mod ป้องกันขยะในช่อง AI"))
+    await bot.change_presence(activity=discord.Game(name="🛡️ ระบบบังคับใช้คำสั่ง /ask ในช่อง AI"))
 
-# --- ระบบ Auto-Delete รูปภาพ / สติกเกอร์ / อิโมจิ / ลิงก์ ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ ---
+# --- ระบบ Auto-Delete ข้อความธรรมดาของผู้ใช้ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ (ยกเว้นข้อความจากบอท) ---
 @bot.event
 async def on_message(message: discord.Message):
+    # ข้ามและอนุญาตข้อความจากบอททุกตัวในเซิร์ฟเวอร์ (รวมถึงบอท AI)
     if message.author.bot or not message.guild:
         return
 
     ch_name = message.channel.name.lower()
     if "ai-chat" in ch_name or "ᴀɪ-ᴄʜᴀᴛ" in message.channel.name:
-        has_attachment = bool(message.attachments)
-        has_sticker = bool(message.stickers)
-        has_emoji = bool(EMOJI_REGEX.search(message.content))
-        has_url = bool(URL_REGEX.search(message.content))
-
-        if has_attachment or has_sticker or has_emoji or has_url:
-            try:
-                await message.delete()
-                write_log(f"Auto-mod deleted prohibited content from {message.author} in {message.channel.name}")
-                warn_msg = await message.channel.send(
-                    f"⚠️ {message.author.mention} **ช่องนี้อนุญาตให้ส่งเฉพาะข้อความตัวหนังสือเท่านั้น! (ลบรูป/สติกเกอร์/อิโมจิ/ลิงก์ อัตโนมัติ)**"
-                )
-                await asyncio.sleep(5)
-                await warn_msg.delete()
-            except Exception as e:
-                write_log(f"Failed auto-mod delete: {e}")
+        # หากเป็นข้อความปกติที่ผู้ใช้พิมพ์ส่งเข้ามา (ไม่ว่าจะข้อความ รูป ลิงก์ สติกเกอร์ อิโมจิ)
+        # ให้ลบทิ้งทันที เพื่อบังคับให้พิมพ์ใช้ Slash Command /ask เท่านั้น
+        try:
+            await message.delete()
+            write_log(f"Auto-mod deleted non-slash user message from {message.author} in {message.channel.name}")
+            warn_msg = await message.channel.send(
+                f"⚠️ {message.author.mention} **โปรดใช้คำสั่ง `/ask [คำถามของคุณ]` เพื่อคุยกับ AI เท่านั้นครับ!**"
+            )
+            await asyncio.sleep(5)
+            await warn_msg.delete()
+        except Exception as e:
+            write_log(f"Failed auto-mod delete: {e}")
 
     await bot.process_commands(message)
 
