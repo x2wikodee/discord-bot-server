@@ -25,11 +25,12 @@ def write_log(message: str):
     except Exception:
         pass
 
-# Regex สำหรับตรวจจับ Custom Emojis (<:name:id>, <a:name:id>) และ Unicode Emojis ทั้งหมด
+# Regex สำหรับตรวจจับ Custom Emojis, Unicode Emojis และ Links/URLs ทั้งหมด
 EMOJI_REGEX = re.compile(
     r"<a?:[a-zA-Z0-9_]+:[0-9]+>|"
     r"[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F1E0-\U0001F1FF\U00002600-\U000027BF\U0001F900-\U0001F9FF\U0001FA70-\U0001FAFF]"
 )
+URL_REGEX = re.compile(r"https?://\S+|www\.\S+", re.IGNORECASE)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -89,7 +90,7 @@ async def on_ready():
     gc.collect()
     await bot.change_presence(activity=discord.Game(name="🛡️ ระบบ Auto-Mod ป้องกันขยะในช่อง AI"))
 
-# --- ระบบ Auto-Delete รูปภาพ / สติกเกอร์ / อิโมจิ ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ ---
+# --- ระบบ Auto-Delete รูปภาพ / สติกเกอร์ / อิโมจิ / ลิงก์ ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ ---
 @bot.event
 async def on_message(message: discord.Message):
     if message.author.bot or not message.guild:
@@ -100,13 +101,14 @@ async def on_message(message: discord.Message):
         has_attachment = bool(message.attachments)
         has_sticker = bool(message.stickers)
         has_emoji = bool(EMOJI_REGEX.search(message.content))
+        has_url = bool(URL_REGEX.search(message.content))
 
-        if has_attachment or has_sticker or has_emoji:
+        if has_attachment or has_sticker or has_emoji or has_url:
             try:
                 await message.delete()
                 write_log(f"Auto-mod deleted prohibited content from {message.author} in {message.channel.name}")
                 warn_msg = await message.channel.send(
-                    f"⚠️ {message.author.mention} **ช่องนี้อนุญาตให้ส่งเฉพาะข้อความตัวหนังสือเท่านั้น! (ลบรูป/สติกเกอร์/อิโมจิอัตโนมัติ)**"
+                    f"⚠️ {message.author.mention} **ช่องนี้อนุญาตให้ส่งเฉพาะข้อความตัวหนังสือเท่านั้น! (ลบรูป/สติกเกอร์/อิโมจิ/ลิงก์ อัตโนมัติ)**"
                 )
                 await asyncio.sleep(5)
                 await warn_msg.delete()
