@@ -33,7 +33,6 @@ async def on_ready():
     print(f"AI Model Name Target: {MODEL_NAME}")
     try:
         for guild in bot.guilds:
-            # เคลียร์คำสั่งเก่าค้างออก และ Sync เฉพาะ /ask และ /setup_aichat
             bot.tree.clear_commands(guild=guild)
             bot.tree.copy_global_to(guild=guild)
             synced = await bot.tree.sync(guild=guild)
@@ -42,26 +41,22 @@ async def on_ready():
         print(f"Failed sync: {e}")
     await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
 
-# --- Slash Command 1: /setup_aichat (ส่งและปักหมุดการ์ดคู่มือเฉพาะคำสั่ง /ask) ---
+# --- Slash Command 1: /setup_aichat (การ์ดมินิมอล กระชับ สะอาด) ---
 @bot.tree.command(name="setup_aichat", description="ส่งและปักหมุดการ์ดคู่มือวิธีใช้งาน AI Chat ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ")
 async def slash_setup_aichat(interaction: discord.Interaction):
     guild = interaction.guild
     channel = interaction.channel
 
     embed = discord.Embed(
-        title="🤖 คู่มือการใช้งาน AI CHAT BOT (24/7 CLOUD AI)",
+        title="🤖 คู่มือการใช้งาน AI CHAT BOT",
         description=(
-            "ยินดีต้อนรับสู่ระบบปัญญาประดิษฐ์ **AI Assistant 24 ชั่วโมง**!\n"
-            "ระบบขับเคลื่อนด้วยโมเดล **MiniMax M3** ทำงานผ่านคลาวด์บน AWS EC2 ตลอด 24 ชม.\n\n"
             "📌 **วิธีใช้งานคำสั่ง AI:**\n"
             "👉 พิมพ์คำสั่ง **`/ask [คำถามของคุณ]`** ➡️ เพื่อส่งคำถามให้ AI ตอบทันที\n\n"
-            "✨ **ความสามารถของ AI:**\n"
-            "• ตอบคำถามทั่วไป เขียนโปรแกรม แปลภาษา สรุปเนื้อหา\n"
-            "• ให้คำแนะนำและแก้ไขข้อผิดพลาดทางเทคนิคได้ทันที"
+            "✨ **ความสามารถ:**\n"
+            "• ตอบคำถามทั่วไป เขียนโปรแกรม แปลภาษา และสรุปเนื้อหา"
         ),
         color=discord.Color.blue()
     )
-    embed.set_footer(text="ระบบ AI Assistant 24/7 Automatic Response")
 
     msg = await channel.send(embed=embed)
     try:
