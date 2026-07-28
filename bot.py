@@ -117,8 +117,7 @@ async def slash_setup_bypass_guide(interaction: discord.Interaction):
             "✨ **ตัวอย่างการพิมพ์:**\n"
             "`/bypass url: https://link-to-unlock.com/xyz`\n\n"
             "🛡️ **คำแนะนำ:**\n"
-            "• ระบบรองรับเฉพาะบางลิงก์ที่กำหนดไว้เท่านั้น (ไม่สามารถปลดล็อกได้ทุกลิงก์)\n"
-            "• ผลลัพธ์จะส่งกลับให้คุณทันทีแบบส่วนตัว (Only you can see this)"
+            "• ระบบรองรับเฉพาะบางลิงก์ (ไม่สามารถปลดล็อกได้ทุกลิงก์)"
         ),
         color=discord.Color.green()
     )
