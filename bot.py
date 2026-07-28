@@ -89,19 +89,61 @@ async def on_ready():
     gc.collect()
     await bot.change_presence(activity=discord.Game(name="พิมพ์ / เพื่อใช้งานคำสั่ง"))
 
-# --- 8 Core Slash Commands ---
+# --- 9 Core Slash Commands ---
 @bot.tree.command(name="help", description="ดูคำสั่งทั้งหมดของ Admin Bot")
 async def slash_help(interaction: discord.Interaction):
     embed = discord.Embed(title="👑 Admin Bot - คำสั่งจัดการเซิร์ฟเวอร์", color=discord.Color.gold())
-    embed.add_field(name="1. /setup_bypass_guide", value="ส่งและปักหมุดการ์ดคู่มือใช้งาน Zen Bypass ในช่อง ⚡︱ʙʏᴘᴀss", inline=False)
-    embed.add_field(name="2. /organize_existing_server", value="ย้ายจัดระเบียบช่องเดิมเป็น Smallcaps และรวม 15 ฟีดขยะเหลือ 4 ช่องหลัก", inline=False)
-    embed.add_field(name="3. /setup_verify", value="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
-    embed.add_field(name="4. /setup_bot_roles", value="สร้างและมอบยศเฉพาะตัวให้บอททุกตัว (1 บอท : 1 ยศ)", inline=False)
-    embed.add_field(name="5. /clean_webhooks", value="ลบและเคลียร์ Webhooks ขยะที่ค้างซ้ำซ้อนออกทั้งหมด", inline=False)
-    embed.add_field(name="6. /backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
-    embed.add_field(name="7. /restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
-    embed.add_field(name="8. /inspect_server", value="สแกนละเอียดทุกสิทธิ์ ยศ Webhooks บันทึกลง bot.log", inline=False)
+    embed.add_field(name="1. /setup_rules", value="ส่งและปักหมุดการ์ดกฎระเบียบเซิร์ฟเวอร์ในช่อง 📜︱ʀᴜʟᴇꜱ", inline=False)
+    embed.add_field(name="2. /setup_bypass_guide", value="ส่งและปักหมุดการ์ดคู่มือใช้งาน Zen Bypass ในช่อง ⚡︱ʙʏᴘᴀss", inline=False)
+    embed.add_field(name="3. /organize_existing_server", value="ย้ายจัดระเบียบช่องเดิมเป็น Smallcaps และรวม 15 ฟีดขยะเหลือ 4 ช่องหลัก", inline=False)
+    embed.add_field(name="4. /setup_verify", value="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
+    embed.add_field(name="5. /setup_bot_roles", value="สร้างและมอบยศเฉพาะตัวให้บอททุกตัว (1 บอท : 1 ยศ)", inline=False)
+    embed.add_field(name="6. /clean_webhooks", value="ลบและเคลียร์ Webhooks ขยะที่ค้างซ้ำซ้อนออกทั้งหมด", inline=False)
+    embed.add_field(name="7. /backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
+    embed.add_field(name="8. /restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
+    embed.add_field(name="9. /inspect_server", value="สแกนละเอียดทุกสิทธิ์ ยศ Webhooks บันทึกลง bot.log", inline=False)
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# --- Slash Command: /setup_rules (ส่งและปักหมุดการ์ดกฎเซิร์ฟเวอร์) ---
+@bot.tree.command(name="setup_rules", description="ส่งและปักหมุดการ์ดกฎระเบียบเซิร์ฟเวอร์ในช่อง 📜︱ʀᴜʟᴇꜱ")
+@is_slash_guild_owner()
+async def slash_setup_rules(interaction: discord.Interaction):
+    guild = interaction.guild
+
+    category = discord.utils.get(guild.categories, name="📌︱ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ & ᴡᴇʟᴄᴏᴍᴇ") or await guild.create_category("📌︱ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ & ᴡᴇʟᴄᴏ模ᴇ")
+
+    channel = None
+    for ch in guild.text_channels:
+        if "rule" in ch.name.lower() or "ʀᴜʟᴇꜱ" in ch.name:
+            channel = ch
+            break
+
+    if not channel:
+        channel = await category.create_text_channel("📜︱ʀᴜʟᴇꜱ")
+    else:
+        await channel.edit(category=category, name="📜︱ʀᴜʟᴇꜱ")
+
+    embed = discord.Embed(
+        title="📜 กฎระเบียบเซิร์ฟเวอร์ (SERVER RULES)",
+        description=(
+            "1. อย่าทำเชิฟพัง\n"
+            "2. ไม่มี\n"
+            "3. ไม่มี"
+        ),
+        color=discord.Color.red()
+    )
+    embed.set_footer(text="โปรดปฏิบัติตามกฎระเบียบของเซิร์ฟเวอร์อย่างเคร่งครัด")
+
+    msg = await channel.send(embed=embed)
+    try:
+        await msg.pin()
+    except Exception:
+        pass
+
+    await interaction.response.send_message(
+        f"✅ **ส่งการ์ดกฎระเบียบและปักหมุดในช่อง {channel.mention} เรียบร้อยแล้ว!**",
+        ephemeral=True
+    )
 
 # --- Slash Command: /setup_bypass_guide ---
 @bot.tree.command(name="setup_bypass_guide", description="ส่งและปักหมุดการ์ดคู่มือวิธีใช้งาน Zen Bypass ในช่อง ⚡︱ʙʏᴘᴀss")
