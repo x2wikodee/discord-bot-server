@@ -24,7 +24,6 @@ else:
 
 MODEL_NAME = os.getenv("AI_MODEL_NAME", "minimax/minimax-m3").strip()
 
-# --- Memory RAM Optimization ---
 intents = discord.Intents.default()
 cache_flags = discord.MemberCacheFlags.none()
 
@@ -39,11 +38,12 @@ bot = commands.Bot(
 @bot.event
 async def on_ready():
     print(f"🤖 Dedicated AI Bot Connected: {bot.user}")
-    print(f"AI Endpoint Target: {AI_ENDPOINT}")
-    print(f"AI Model Name Target: {MODEL_NAME}")
     try:
+        # ล้างคำสั่ง Global และ Guild เก่าทั้งหมดออก 100%
+        bot.tree.clear_commands(guild=None)
+        await bot.tree.sync(guild=None)
+        
         for guild in bot.guilds:
-            # ลบคำสั่งเก่าค้างทิ้งทั้งหมด เพื่อให้เหลือแค่ /ask เดียว 100%
             bot.tree.clear_commands(guild=guild)
             bot.tree.copy_global_to(guild=guild)
             synced = await bot.tree.sync(guild=guild)
