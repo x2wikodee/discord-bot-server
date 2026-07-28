@@ -90,7 +90,8 @@ async def on_ready():
     gc.collect()
     await bot.change_presence(activity=discord.Game(name="พิมพ์ / เพื่อใช้งานคำสั่ง"))
 
-# --- 10 Admin Slash Commands ---
+# --- Essential Admin Slash Commands Only (/setup, /clear, /organize, /backup, /clean, /help) ---
+
 @bot.tree.command(name="help", description="ดูคำสั่งทั้งหมดของ Admin Bot")
 async def slash_help(interaction: discord.Interaction):
     embed = discord.Embed(title="👑 Admin Bot - คำสั่งจัดการเซิร์ฟเวอร์", color=discord.Color.gold())

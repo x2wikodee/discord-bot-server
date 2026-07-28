@@ -38,22 +38,19 @@ bot = commands.Bot(
 @bot.event
 async def on_ready():
     print(f"🤖 Dedicated AI Bot Connected: {bot.user}")
+    print(f"AI Endpoint Target: {AI_ENDPOINT}")
+    print(f"AI Model Name Target: {MODEL_NAME}")
     try:
-        # ล้างคำสั่ง Global และ Guild เก่าทั้งหมดออก 100%
-        bot.tree.clear_commands(guild=None)
-        await bot.tree.sync(guild=None)
-        
         for guild in bot.guilds:
-            bot.tree.clear_commands(guild=guild)
             bot.tree.copy_global_to(guild=guild)
             synced = await bot.tree.sync(guild=guild)
-            print(f"Synced {len(synced)} slash command cleanly for AI bot in {guild.name}")
+            print(f"Synced {len(synced)} slash command (/ask) cleanly for AI bot in {guild.name}")
     except Exception as e:
-        print(f"Failed sync: {e}")
+        print(f"Failed sync AI bot slash command: {e}")
     gc.collect()
     await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
 
-# --- Slash Command เพียงตัวเดียวเท่านั้น: /ask ---
+# --- Slash Command หลักตัวเดียวของ AI Bot: /ask ---
 @bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ")
 async def slash_ask(interaction: discord.Interaction, question: str):
     await interaction.response.defer()
