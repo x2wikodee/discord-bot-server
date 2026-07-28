@@ -177,7 +177,7 @@ async def sync(ctx):
 @bot.tree.command(name="help", description="ดูคำสั่งทั้งหมดของบอท")
 async def slash_help(interaction: discord.Interaction):
     embed = discord.Embed(title="🤖 คำสั่งควบคุมเซิร์ฟเวอร์", color=discord.Color.blue())
-    embed.add_field(name="/setup_bot_roles", value="สร้างและแจกยศจัดหมวดหมู่บอทแต่ละตัวใน Member List ให้เป็นระเบียบสวยงาม", inline=False)
+    embed.add_field(name="/setup_bot_roles", value="สร้างยศเฉพาะให้บอททุกตัวในเซิร์ฟเวอร์แบบ 1 บอท ต่อ 1 ยศ แสดงผลสวยงาม", inline=False)
     embed.add_field(name="/setup_verify", value="สร้างการ์ดระบบยืนยันตัวตนกดปุ่มรับยศสมาชิกในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
     embed.add_field(name="/backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
     embed.add_field(name="/restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
@@ -195,62 +195,65 @@ async def slash_help(interaction: discord.Interaction):
     embed.add_field(name="/clear", value="ลบข้อความ (เฉพาะแอดมิน)", inline=False)
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-# --- Slash Command: /setup_bot_roles (สร้างและแจกยศจัดหมวดหมู่บอทแต่ละประเภท) ---
-@bot.tree.command(name="setup_bot_roles", description="สร้างและแจกยศจัดหมวดหมู่แยกประเภทบอทในรายชื่อสมาชิกให้สวยงาม")
+# --- Slash Command: /setup_bot_roles (สร้างยศเฉพาะตัวให้บอททุกตัว 1:1) ---
+@bot.tree.command(name="setup_bot_roles", description="สร้างและมอบยศเฉพาะตัวให้บอทแต่ละตัวในเซิร์ฟเวอร์ (1 บอท : 1 ยศ)")
 @is_slash_guild_owner()
 async def slash_setup_bot_roles(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
     guild = interaction.guild
 
-    # นิยามหมวดหมู่ยศบอท สี และเงื่อนไขการแจก
-    role_definitions = [
-        ("👑︱SERVER ADMIN BOT", discord.Color.gold(), ["mbeumo", "admin"]),
-        ("🤖︱AI ASSISTANT", discord.Color.green(), ["ai"]),
-        ("🎵︱MUSIC & VOICE BOTS", discord.Color.purple(), ["jockie", "rythm", "tempvoice"]),
-        ("🎮︱GAME & FEED BOTS", discord.Color.orange(), ["patchbot", "wuwa", "freestuff"]),
-        ("⚽︱SPORTS BOTS", discord.Color.teal(), ["football nation", "soccer guru"]),
-        ("🛠︱UTILITY & BYPASS BOTS", discord.Color.blue(), ["probot", "invite tracker", "zen bypass", "bypass.link", "readybot"])
+    # รายชื่อสีสวยงามสำหรับมอบให้บอท
+    colors = [
+        discord.Color.gold(),
+        discord.Color.green(),
+        discord.Color.purple(),
+        discord.Color.orange(),
+        discord.Color.teal(),
+        discord.Color.blue(),
+        discord.Color.magenta(),
+        discord.Color.dark_teal(),
+        discord.Color.dark_green(),
+        discord.Color.dark_blue(),
+        discord.Color.dark_purple(),
+        discord.Color.dark_gold(),
+        discord.Color.dark_orange()
     ]
 
-    created_roles = {}
+    created_roles_count = 0
     assigned_count = 0
 
-    # 1. สร้างยศแยกกลุ่มบอท (Hoist = True เพื่อแสดงแยกแถบสมาชิก)
-    for r_name, r_color, keywords in role_definitions:
-        role = discord.utils.get(guild.roles, name=r_name)
-        if not role:
-            role = await guild.create_role(name=r_name, color=r_color, hoist=True)
-        else:
-            await role.edit(color=r_color, hoist=True)
-        created_roles[r_name] = (role, keywords)
-
-    # 2. ค้นหาและแจกยศให้บอทแต่ละตัวโดยอัตโนมัติ
-    for member in guild.members:
+    # วนลูปบอททุกตัวในเซิร์ฟเวอร์ และสร้างยศเฉพาะตัวให้แต่ละบอท (1 บอท = 1 ยศ)
+    for idx, member in enumerate(guild.members):
         if not member.bot:
             continue
 
-        b_name = member.name.lower()
-        b_disp = member.display_name.lower()
+        # กำหนดชื่อยศตามชื่อบอท
+        role_name = f"🤖︱{member.display_name.upper()}"
+        color = colors[idx % len(colors)]
 
-        for r_name, (role, keywords) in created_roles.items():
-            for kw in keywords:
-                if kw in b_name or kw in b_disp:
-                    if role not in member.roles:
-                        try:
-                            await member.add_roles(role)
-                            assigned_count += 1
-                        except Exception:
-                            pass
-                    break
+        # ค้นหาหรือสร้างยศเฉพาะตัว (Hoist = True เพื่อให้ขึ้นโชว์แถบยศเฉพาะใน Member List)
+        role = discord.utils.get(guild.roles, name=role_name)
+        if not role:
+            role = await guild.create_role(name=role_name, color=color, hoist=True)
+            created_roles_count += 1
+        else:
+            await role.edit(color=color, hoist=True)
+
+        if role not in member.roles:
+            try:
+                await member.add_roles(role)
+                assigned_count += 1
+            except Exception:
+                pass
 
     await interaction.followup.send(
-        f"✅ **สร้างและจัดหมวดหมู่ยศบอทสำเร็จเรียบร้อย!**\n"
-        f"👑 สร้างยศจัดกลุ่มบอท: **{len(role_definitions)} กลุ่มยศ**\n"
-        f"🏷️ แจกยศแยกประเภทให้บอท: **{assigned_count} ครั้ง**\n"
-        f"✨ รายชื่อบอททางด้านขวาจะถูกแยกกลุ่มเป็นระเบียบสวยงาม 100% แล้วครับ!",
+        f"✅ **สร้างและแจกยศเฉพาะตัวให้บอททุกตัวสำเร็จ!**\n"
+        f"🏷️ สร้างยศใหม่เฉพาะบอท: **{created_roles_count} ยศ**\n"
+        f"🤖 แจกยศเฉพาะตัวให้บอท: **{assigned_count} บอท**\n"
+        f"✨ ตอนนี้บอททุกตัวมี **ยศแยกเฉพาะของตัวเอง (1 บอท : 1 ยศ)** และแสดงผลแยกแถบในรายชื่อสมาชิกแล้วครับ!",
         ephemeral=True
     )
-    write_log("setup_bot_roles executed successfully.")
+    write_log("setup_bot_roles (1:1 per bot) executed successfully.")
 
 # --- Slash Command: /setup_verify ---
 @bot.tree.command(name="setup_verify", description="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนอัตโนมัติในช่อง ✅︱ᴠᴇʀɪꜰʏ")
@@ -977,7 +980,7 @@ async def slash_ai(interaction: discord.Interaction, prompt: str):
         else:
             await interaction.followup.send(f"❌ AI Server Status Error ({res.status_code}): {res.text[:200]}", ephemeral=True)
     except Exception as e:
-        await interaction.followup.send(f"❌ AI Error: {e}")
+        await interaction.followup.send(f"❌ AI Error: {e}", ephemeral=True)
 
 # --- Slash Command: /say ---
 @bot.tree.command(name="say", description="ให้บอทพิมพ์ส่งข้อความที่คุณต้องการ")
