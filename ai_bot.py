@@ -21,15 +21,9 @@ if BASE_URL.endswith('/v1'):
 else:
     AI_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
 
-# อ่านชื่อโมเดลจาก .env (ค่าเริ่มต้นใช้ gpt-3.5-turbo)
-MODEL_NAME = os.getenv("AI_MODEL_NAME", "gpt-3.5-turbo").strip()
+MODEL_NAME = os.getenv("AI_MODEL_NAME", "minimax/minimax-m3").strip()
 
 intents = discord.Intents.default()
-try:
-    intents.message_content = True
-except Exception:
-    pass
-
 bot = commands.Bot(command_prefix="?", intents=intents, help_command=None)
 
 @bot.event
@@ -40,48 +34,36 @@ async def on_ready():
     try:
         for guild in bot.guilds:
             bot.tree.copy_global_to(guild=guild)
-            await bot.tree.sync(guild=guild)
+            synced = await bot.tree.sync(guild=guild)
+            print(f"Synced {len(synced)} slash commands for AI bot in {guild.name}")
     except Exception as e:
         print(f"Failed sync: {e}")
-    await bot.change_presence(activity=discord.Game(name="🤖 คุยตอบ AI 24 ชม. ผ่าน Cloud"))
+    await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ai เพื่อใช้งาน AI"))
 
-@bot.event
-async def on_message(message):
-    if message.author.bot:
-        return
+# --- Slash Command 1: /ai (บังคับใช้คำสั่ง / เท่านั้น) ---
+@bot.tree.command(name="ai", description="ถามตอบกับ AI อัตโนมัติ")
+async def slash_ai(interaction: discord.Interaction, prompt: str):
+    await interaction.response.defer()
+    headers = {"Content-Type": "application/json"}
+    if NINEROUTER_KEY:
+        headers["Authorization"] = f"Bearer {NINEROUTER_KEY}"
+    payload = {
+        "model": MODEL_NAME,
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False
+    }
+    try:
+        res = requests.post(AI_ENDPOINT, json=payload, headers=headers, timeout=60)
+        if res.status_code == 200:
+            reply = res.json()["choices"][0]["message"]["content"]
+            await interaction.followup.send(reply[:2000])
+        else:
+            await interaction.followup.send(f"❌ AI Status Error ({res.status_code}): {res.text[:150]}")
+    except Exception as e:
+        await interaction.followup.send(f"❌ AI Error: {e}")
 
-    c_name = message.channel.name.lower()
-    is_mentioned = bot.user in message.mentions
-    is_ai_channel = "ai-chat" in c_name or "aichat" in c_name or "ᴀɪ-ᴄʜᴀᴛ" in message.channel.name
-
-    if is_mentioned or is_ai_channel:
-        clean_content = message.content.replace(f"<@{bot.user.id}>", "").strip()
-        if not clean_content:
-            clean_content = "สวัสดีครับ"
-
-        async with message.channel.typing():
-            headers = {"Content-Type": "application/json"}
-            if NINEROUTER_KEY:
-                headers["Authorization"] = f"Bearer {NINEROUTER_KEY}"
-            payload = {
-                "model": MODEL_NAME,
-                "messages": [{"role": "user", "content": clean_content}],
-                "stream": False
-            }
-            try:
-                res = requests.post(AI_ENDPOINT, json=payload, headers=headers, timeout=60)
-                if res.status_code == 200:
-                    reply = res.json()["choices"][0]["message"]["content"]
-                    await message.reply(reply[:2000])
-                else:
-                    await message.reply(f"❌ AI Status Error ({res.status_code}): {res.text[:150]}")
-            except Exception as e:
-                await message.reply(f"❌ AI Connection Error: {e}")
-
-    await bot.process_commands(message)
-
-# --- Slash Command: /ask ---
-@bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ 24 ชม.")
+# --- Slash Command 2: /ask ---
+@bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ")
 async def slash_ask(interaction: discord.Interaction, question: str):
     await interaction.response.defer()
     headers = {"Content-Type": "application/json"}
