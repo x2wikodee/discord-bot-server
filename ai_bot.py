@@ -11,20 +11,19 @@ if sys.platform == "win32":
 
 load_dotenv()
 
-# Token สำหรับบอท AI โดยเฉพาะ (แยกจากบอท Admin)
+# Token สำหรับบอท AI โดยเฉพาะ
 TOKEN = os.getenv("AI_DISCORD_TOKEN") or os.getenv("DISCORD_TOKEN")
-NINEROUTER_URL = os.getenv("NINEROUTER_URL", "http://localhost:20128")
-if "8787" in NINEROUTER_URL:
-    NINEROUTER_URL = "http://localhost:20128"
-
+NINEROUTER_URL = os.getenv("NINEROUTER_URL", "https://openrouter.ai/api").strip()
 NINEROUTER_KEY = os.getenv("NINEROUTER_KEY", "").strip()
 
 BASE_URL = NINEROUTER_URL.rstrip('/')
-if BASE_URL.endswith('/v1'):
-    BASE_URL = BASE_URL[:-3]
-AI_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
+if not BASE_URL.endswith('/v1'):
+    AI_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
+else:
+    AI_ENDPOINT = f"{BASE_URL}/chat/completions"
 
-MODEL_NAME = "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+# กำหนดโมเดล AI (รองรับทั้งโมเดลฟรี OpenRouter และ 9Router)
+MODEL_NAME = os.getenv("AI_MODEL_NAME", "meta-llama/llama-3.1-8b-instruct:free")
 
 intents = discord.Intents.default()
 try:
@@ -43,7 +42,7 @@ async def on_ready():
             await bot.tree.sync(guild=guild)
     except Exception as e:
         print(f"Failed sync: {e}")
-    await bot.change_presence(activity=discord.Game(name="🤖 แท็กหาฉันเพื่อคุยกับ AI"))
+    await bot.change_presence(activity=discord.Game(name="🤖 แท็กหาฉันเพื่อคุยกับ AI 24 ชม."))
 
 @bot.event
 async def on_message(message):
@@ -60,7 +59,7 @@ async def on_message(message):
             clean_content = "สวัสดีครับ"
 
         async with message.channel.typing():
-            headers = {}
+            headers = {"Content-Type": "application/json"}
             if NINEROUTER_KEY:
                 headers["Authorization"] = f"Bearer {NINEROUTER_KEY}"
             payload = {
@@ -81,10 +80,10 @@ async def on_message(message):
     await bot.process_commands(message)
 
 # --- Slash Command: /ask ---
-@bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ")
+@bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ 24 ชม.")
 async def slash_ask(interaction: discord.Interaction, question: str):
     await interaction.response.defer()
-    headers = {}
+    headers = {"Content-Type": "application/json"}
     if NINEROUTER_KEY:
         headers["Authorization"] = f"Bearer {NINEROUTER_KEY}"
     payload = {
