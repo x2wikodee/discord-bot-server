@@ -89,23 +89,18 @@ async def on_ready():
     gc.collect()
     await bot.change_presence(activity=discord.Game(name="พิมพ์ / เพื่อใช้งานคำสั่ง"))
 
-# --- 10 Core Slash Commands ---
-@bot.tree.command(name="help", description="ดูคำสั่งทั้งหมดของ Admin Bot")
-async def slash_help(interaction: discord.Interaction):
-    embed = discord.Embed(title="👑 Admin Bot - คำสั่งจัดการเซิร์ฟเวอร์", color=discord.Color.gold())
-    embed.add_field(name="1. /setup_bot_status", value="ส่งและปักหมุดการ์ดมอนิเตอร์เช็กสถานะบอททุกตัวในช่อง 📊︱ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ", inline=False)
-    embed.add_field(name="2. /setup_rules", value="ส่งและปักหมุดการ์ดกฎระเบียบเซิร์ฟเวอร์ในช่อง 📜︱ʀᴜʟᴇꜱ", inline=False)
-    embed.add_field(name="3. /setup_bypass_guide", value="ส่งและปักหมุดการ์ดคู่มือใช้งาน Zen Bypass ในช่อง ⚡︱ʙʏᴘᴀss", inline=False)
-    embed.add_field(name="4. /organize_existing_server", value="ย้ายจัดระเบียบช่องเดิมเป็น Smallcaps และรวม 15 ฟีดขยะเหลือ 4 ช่องหลัก", inline=False)
-    embed.add_field(name="5. /setup_verify", value="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
-    embed.add_field(name="6. /setup_bot_roles", value="สร้างและมอบยศเฉพาะตัวให้บอททุกตัว (1 บอท : 1 ยศ)", inline=False)
-    embed.add_field(name="7. /clean_webhooks", value="ลบและเคลียร์ Webhooks ขยะที่ค้างซ้ำซ้อนออกทั้งหมด", inline=False)
-    embed.add_field(name="8. /backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
-    embed.add_field(name="9. /restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
-    embed.add_field(name="10. /inspect_server", value="สแกนละเอียดทุกสิทธิ์ ยศ Webhooks บันทึกลง bot.log", inline=False)
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+# --- Slash Command: /clear_channel (ล้างข้อความในช่องปัจจุบัน) ---
+@bot.tree.command(name="clear_channel", description="ล้างข้อความค้างเก่าทั้งหมดในช่องนี้ให้สะอาด 100%")
+@is_slash_guild_owner()
+async def slash_clear_channel(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
+    try:
+        deleted = await interaction.channel.purge(limit=100)
+        await interaction.followup.send(f"🧹 **ล้างและลบข้อความในช่อง {interaction.channel.mention} เรียบร้อยแล้ว! ({len(deleted)} ข้อความ)**", ephemeral=True)
+    except Exception as e:
+        await interaction.followup.send(f"❌ Error: {e}", ephemeral=True)
 
-# --- Slash Command: /setup_bot_status (ส่งและปักหมุดการ์ดมอนิเตอร์สถานะบอท) ---
+# --- Slash Command: /setup_bot_status ---
 @bot.tree.command(name="setup_bot_status", description="ส่งและปักหมุดการ์ดมอนิเตอร์เช็กสถานะบอททุกตัวในช่อง 📊︱ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ")
 @is_slash_guild_owner()
 async def slash_setup_bot_status(interaction: discord.Interaction):
@@ -124,7 +119,12 @@ async def slash_setup_bot_status(interaction: discord.Interaction):
     else:
         await channel.edit(category=category, name="📊︱ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ")
 
-    # รวบรวมสถานะบอททุกตัวในเซิร์ฟเวอร์
+    # ลบข้อความเก่าในช่องออกก่อนส่งการ์ดใหม่
+    try:
+        await channel.purge(limit=50)
+    except Exception:
+        pass
+
     bot_status_list = []
     online_count = 0
     offline_count = 0
@@ -185,6 +185,12 @@ async def slash_setup_rules(interaction: discord.Interaction):
     else:
         await channel.edit(category=category, name="📜︱ʀᴜʟᴇꜱ")
 
+    # ลบข้อความเก่าในช่องออกก่อน
+    try:
+        await channel.purge(limit=50)
+    except Exception:
+        pass
+
     embed = discord.Embed(
         title="📜 กฎระเบียบเซิร์ฟเวอร์ (SERVER RULES)",
         description=(
@@ -212,6 +218,12 @@ async def slash_setup_rules(interaction: discord.Interaction):
 @is_slash_guild_owner()
 async def slash_setup_bypass_guide(interaction: discord.Interaction):
     channel = interaction.channel
+
+    # ลบข้อความเก่าในช่องออกก่อน
+    try:
+        await channel.purge(limit=50)
+    except Exception:
+        pass
 
     embed = discord.Embed(
         title="⚡ คู่มือการใช้งาน ZEN BYPASS BOT",
@@ -359,6 +371,10 @@ async def slash_setup_verify(interaction: discord.Interaction):
         channel = await category.create_text_channel("✅︱ᴠᴇʀɪꜰʏ")
     else:
         await channel.edit(category=category, name="✅︱ᴠᴇʀɪꜰʏ")
+
+    # ลบข้อความเก่าออกก่อน
+    try: await channel.purge(limit=50)
+    except Exception: pass
 
     embed = discord.Embed(
         title="✅ ระบบยืนยันตัวตน (VERIFICATION SYSTEM)",
