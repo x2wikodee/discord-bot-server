@@ -89,28 +89,90 @@ async def on_ready():
     gc.collect()
     await bot.change_presence(activity=discord.Game(name="พิมพ์ / เพื่อใช้งานคำสั่ง"))
 
-# --- 9 Core Slash Commands ---
+# --- 10 Core Slash Commands ---
 @bot.tree.command(name="help", description="ดูคำสั่งทั้งหมดของ Admin Bot")
 async def slash_help(interaction: discord.Interaction):
     embed = discord.Embed(title="👑 Admin Bot - คำสั่งจัดการเซิร์ฟเวอร์", color=discord.Color.gold())
-    embed.add_field(name="1. /setup_rules", value="ส่งและปักหมุดการ์ดกฎระเบียบเซิร์ฟเวอร์ในช่อง 📜︱ʀᴜʟᴇꜱ", inline=False)
-    embed.add_field(name="2. /setup_bypass_guide", value="ส่งและปักหมุดการ์ดคู่มือใช้งาน Zen Bypass ในช่อง ⚡︱ʙʏᴘᴀss", inline=False)
-    embed.add_field(name="3. /organize_existing_server", value="ย้ายจัดระเบียบช่องเดิมเป็น Smallcaps และรวม 15 ฟีดขยะเหลือ 4 ช่องหลัก", inline=False)
-    embed.add_field(name="4. /setup_verify", value="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
-    embed.add_field(name="5. /setup_bot_roles", value="สร้างและมอบยศเฉพาะตัวให้บอททุกตัว (1 บอท : 1 ยศ)", inline=False)
-    embed.add_field(name="6. /clean_webhooks", value="ลบและเคลียร์ Webhooks ขยะที่ค้างซ้ำซ้อนออกทั้งหมด", inline=False)
-    embed.add_field(name="7. /backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
-    embed.add_field(name="8. /restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
-    embed.add_field(name="9. /inspect_server", value="สแกนละเอียดทุกสิทธิ์ ยศ Webhooks บันทึกลง bot.log", inline=False)
+    embed.add_field(name="1. /setup_bot_status", value="ส่งและปักหมุดการ์ดมอนิเตอร์เช็กสถานะบอททุกตัวในช่อง 📊︱ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ", inline=False)
+    embed.add_field(name="2. /setup_rules", value="ส่งและปักหมุดการ์ดกฎระเบียบเซิร์ฟเวอร์ในช่อง 📜︱ʀᴜʟᴇꜱ", inline=False)
+    embed.add_field(name="3. /setup_bypass_guide", value="ส่งและปักหมุดการ์ดคู่มือใช้งาน Zen Bypass ในช่อง ⚡︱ʙʏᴘᴀss", inline=False)
+    embed.add_field(name="4. /organize_existing_server", value="ย้ายจัดระเบียบช่องเดิมเป็น Smallcaps และรวม 15 ฟีดขยะเหลือ 4 ช่องหลัก", inline=False)
+    embed.add_field(name="5. /setup_verify", value="ส่งการ์ดปุ่มกดรับยศยืนยันตัวตนในช่อง ✅︱ᴠᴇʀɪꜰʏ", inline=False)
+    embed.add_field(name="6. /setup_bot_roles", value="สร้างและมอบยศเฉพาะตัวให้บอททุกตัว (1 บอท : 1 ยศ)", inline=False)
+    embed.add_field(name="7. /clean_webhooks", value="ลบและเคลียร์ Webhooks ขยะที่ค้างซ้ำซ้อนออกทั้งหมด", inline=False)
+    embed.add_field(name="8. /backup_server", value="สำรองข้อมูลโครงสร้างเซิร์ฟเวอร์ปัจจุบันลง server_backup.json", inline=False)
+    embed.add_field(name="9. /restore_server", value="กู้คืนข้อมูลโครงสร้างเซิร์ฟเวอร์จากไฟล์สำรอง", inline=False)
+    embed.add_field(name="10. /inspect_server", value="สแกนละเอียดทุกสิทธิ์ ยศ Webhooks บันทึกลง bot.log", inline=False)
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-# --- Slash Command: /setup_rules (ส่งและปักหมุดการ์ดกฎเซิร์ฟเวอร์) ---
+# --- Slash Command: /setup_bot_status (ส่งและปักหมุดการ์ดมอนิเตอร์สถานะบอท) ---
+@bot.tree.command(name="setup_bot_status", description="ส่งและปักหมุดการ์ดมอนิเตอร์เช็กสถานะบอททุกตัวในช่อง 📊︱ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ")
+@is_slash_guild_owner()
+async def slash_setup_bot_status(interaction: discord.Interaction):
+    guild = interaction.guild
+
+    category = discord.utils.get(guild.categories, name="⚙️︱ʙᴏᴛꜱ & ᴄᴏᴍᴍᴀɴᴅꜱ") or await guild.create_category("⚙️︱ʙᴏᴛꜱ & ᴄᴏᴍᴍᴀɴᴅꜱ")
+
+    channel = None
+    for ch in guild.text_channels:
+        if "bot-status" in ch.name.lower() or "ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ" in ch.name:
+            channel = ch
+            break
+
+    if not channel:
+        channel = await category.create_text_channel("📊︱ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ")
+    else:
+        await channel.edit(category=category, name="📊︱ʙᴏᴛ-ꜱᴛᴀᴛᴜꜱ")
+
+    # รวบรวมสถานะบอททุกตัวในเซิร์ฟเวอร์
+    bot_status_list = []
+    online_count = 0
+    offline_count = 0
+
+    for member in sorted(guild.members, key=lambda m: m.display_name.lower()):
+        if member.bot:
+            status_str = str(member.status)
+            if status_str in ["online", "idle", "dnd"]:
+                badge = "🟢 ONLINE"
+                online_count += 1
+            else:
+                badge = "🔴 OFFLINE"
+                offline_count += 1
+            
+            bot_status_list.append(f"• **{member.display_name}**: {badge}")
+
+    status_text = "\n".join(bot_status_list) if bot_status_list else "ไม่พบข้อมูลบอทในเซิร์ฟเวอร์"
+
+    embed = discord.Embed(
+        title="📊 บอร์ดมอนิเตอร์สถานะบอท (BOT STATUS DASHBOARD)",
+        description=(
+            f"**สรุปภาพรวม:** 🟢 ออนไลน์: **{online_count}** ตัว | 🔴 ออฟไลน์: **{offline_count}** ตัว\n\n"
+            f"📌 **สถานะรายชื่อบอททั้งหมด:**\n"
+            f"{status_text}\n\n"
+            f"⚡ *ระบบมอนิเตอร์สถานะบอทอัตโนมัติ 24 ชั่วโมง*"
+        ),
+        color=discord.Color.blue()
+    )
+    embed.set_footer(text=f"อัปเดตข้อมูลล่าสุดโดย {bot.user.name} | AWS EC2 Cloud")
+
+    msg = await channel.send(embed=embed)
+    try:
+        await msg.pin()
+    except Exception:
+        pass
+
+    await interaction.response.send_message(
+        f"✅ **สร้างและปักหมุดการ์ดมอนิเตอร์สถานะบอทในช่อง {channel.mention} เรียบร้อยแล้ว!**",
+        ephemeral=True
+    )
+
+# --- Slash Command: /setup_rules ---
 @bot.tree.command(name="setup_rules", description="ส่งและปักหมุดการ์ดกฎระเบียบเซิร์ฟเวอร์ในช่อง 📜︱ʀᴜʟᴇꜱ")
 @is_slash_guild_owner()
 async def slash_setup_rules(interaction: discord.Interaction):
     guild = interaction.guild
 
-    category = discord.utils.get(guild.categories, name="📌︱ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ & ᴡᴇʟᴄᴏᴍᴇ") or await guild.create_category("📌︱ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ & ᴡᴇʟᴄᴏ模ᴇ")
+    category = discord.utils.get(guild.categories, name="📌︱ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ & ᴡᴇʟᴄᴏᴍᴇ") or await guild.create_category("📌︱ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ & ᴡᴇʟᴄᴏᴍᴇ")
 
     channel = None
     for ch in guild.text_channels:
