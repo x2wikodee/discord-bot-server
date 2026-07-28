@@ -24,7 +24,7 @@ else:
 
 MODEL_NAME = os.getenv("AI_MODEL_NAME", "minimax/minimax-m3").strip()
 
-# --- Memory RAM Optimization for AI Bot ---
+# --- Memory RAM Optimization ---
 intents = discord.Intents.default()
 cache_flags = discord.MemberCacheFlags.none()
 
@@ -32,7 +32,7 @@ bot = commands.Bot(
     command_prefix="?",
     intents=intents,
     member_cache_flags=cache_flags,
-    max_messages=None,  # ปิดการเก็บประวัติข้อความค้างใน RAM
+    max_messages=None,
     help_command=None
 )
 
@@ -43,16 +43,17 @@ async def on_ready():
     print(f"AI Model Name Target: {MODEL_NAME}")
     try:
         for guild in bot.guilds:
+            # ลบคำสั่งเก่าค้างทิ้งทั้งหมด เพื่อให้เหลือแค่ /ask เดียว 100%
             bot.tree.clear_commands(guild=guild)
             bot.tree.copy_global_to(guild=guild)
             synced = await bot.tree.sync(guild=guild)
             print(f"Synced {len(synced)} slash command cleanly for AI bot in {guild.name}")
     except Exception as e:
         print(f"Failed sync: {e}")
-    gc.collect()  # เคลียร์ Memory Garbage Collection
+    gc.collect()
     await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
 
-# --- Slash Command เพียงตัวเดียว: /ask ---
+# --- Slash Command เพียงตัวเดียวเท่านั้น: /ask ---
 @bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ")
 async def slash_ask(interaction: discord.Interaction, question: str):
     await interaction.response.defer()
