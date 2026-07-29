@@ -22,9 +22,8 @@ if BASE_URL.endswith('/v1'):
 else:
     AI_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
 
-MODEL_NAME = os.getenv("AI_MODEL_NAME", "minimax/minimax-m3").strip()
+MODEL_NAME = os.getenv("AI_MODEL_NAME", "deepseek/deepseek-v4-pro").strip()
 
-# ตั้งค่า System Prompt ให้ AI จำชื่อตนเอง บทบาท และบุคลิกได้อย่างถูกต้องถาวร
 SYSTEM_PROMPT = os.getenv(
     "AI_SYSTEM_PROMPT",
     "คุณคือ AI Assistant บอทประจำเซิร์ฟเวอร์ดิสคอร์ด ให้จำชื่อตนเอง ตอบคำถามอย่างเป็นมิตร สุภาพ และช่วยเหลือผู้ใช้งานอย่างเต็มที่เสมอ"
@@ -58,7 +57,7 @@ async def on_ready():
     gc.collect()
     await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
 
-# --- Slash Command เพียงตัวเดียว: /ask (รองรับ System Prompt จำชื่อบอท) ---
+# --- Slash Command เพียงตัวเดียว: /ask ---
 @bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ")
 async def slash_ask(interaction: discord.Interaction, question: str):
     await interaction.response.defer()
@@ -66,7 +65,6 @@ async def slash_ask(interaction: discord.Interaction, question: str):
     if NINEROUTER_KEY:
         headers["Authorization"] = f"Bearer {NINEROUTER_KEY}"
     
-    # ใส่ System Prompt กำหนดบุคลิกและชื่อของบอท
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": question}
