@@ -2,7 +2,6 @@ import sys
 import os
 import gc
 import discord
-from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 import requests
@@ -30,6 +29,8 @@ SYSTEM_PROMPT = os.getenv(
 ).strip()
 
 intents = discord.Intents.default()
+intents.message_content = True
+
 cache_flags = discord.MemberCacheFlags.none()
 
 bot = commands.Bot(
@@ -45,46 +46,44 @@ async def on_ready():
     print(f"🤖 Dedicated AI Bot Connected: {bot.user}")
     print(f"AI Endpoint Target: {AI_ENDPOINT}")
     print(f"AI Model Name Target: {MODEL_NAME}")
-    print(f"AI Persona System Prompt: {SYSTEM_PROMPT}")
-    try:
-        for guild in bot.guilds:
-            bot.tree.clear_commands(guild=guild)
-            bot.tree.copy_global_to(guild=guild)
-            synced = await bot.tree.sync(guild=guild)
-            print(f"Synced {len(synced)} slash command cleanly for AI bot in {guild.name}")
-    except Exception as e:
-        print(f"Failed sync: {e}")
     gc.collect()
-    await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์ /ask เพื่อคุยกับ AI"))
+    await bot.change_presence(activity=discord.Game(name="🤖 พิมพ์คุยในช่อง AI ได้เลยทันที (ไม่ต้องใช้ /)"))
 
-# --- Slash Command เพียงตัวเดียว: /ask ---
-@bot.tree.command(name="ask", description="ถามคำถามคุยกับ AI อัตโนมัติ")
-async def slash_ask(interaction: discord.Interaction, question: str):
-    await interaction.response.defer()
-    headers = {"Content-Type": "application/json"}
-    if NINEROUTER_KEY:
-        headers["Authorization"] = f"Bearer {NINEROUTER_KEY}"
-    
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": question}
-    ]
-    
-    payload = {
-        "model": MODEL_NAME,
-        "messages": messages,
-        "stream": False
-    }
-    try:
-        res = requests.post(AI_ENDPOINT, json=payload, headers=headers, timeout=60)
-        if res.status_code == 200:
-            reply = res.json()["choices"][0]["message"]["content"]
-            await interaction.followup.send(reply[:2000])
-        else:
-            await interaction.followup.send(f"❌ AI Status Error ({res.status_code}): {res.text[:150]}")
-    except Exception as e:
-        await interaction.followup.send(f"❌ AI Error: {e}")
-    gc.collect()
+# --- พิมพ์ข้อความในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ คุยกับ AI ได้ทันทีโดยไม่ต้องใช้ / ---
+@bot.event
+async def on_message(message: discord.Message):
+    if message.author.bot or not message.guild:
+        return
+
+    ch_name = message.channel.name.lower()
+    if "ai-chat" in ch_name or "ᴀɪ-ᴄʜᴀᴛ" in message.channel.name:
+        async with message.channel.typing():
+            headers = {"Content-Type": "application/json"}
+            if NINEROUTER_KEY:
+                headers["Authorization"] = f"Bearer {NINEROUTER_KEY}"
+            
+            messages = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": message.content}
+            ]
+            
+            payload = {
+                "model": MODEL_NAME,
+                "messages": messages,
+                "stream": False
+            }
+            try:
+                res = requests.post(AI_ENDPOINT, json=payload, headers=headers, timeout=60)
+                if res.status_code == 200:
+                    reply = res.json()["choices"][0]["message"]["content"]
+                    await message.reply(reply[:2000], mention_author=False)
+                else:
+                    await message.channel.send(f"❌ AI Status Error ({res.status_code}): {res.text[:150]}")
+            except Exception as e:
+                await message.channel.send(f"❌ AI Error: {e}")
+            gc.collect()
+
+    await bot.process_commands(message)
 
 if __name__ == "__main__":
     if not TOKEN:

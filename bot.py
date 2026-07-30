@@ -3,6 +3,7 @@ import os
 import gc
 import asyncio
 import discord
+from discord import app_commands
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from datetime import datetime, timezone
@@ -64,6 +65,14 @@ bot = commands.Bot(
     help_command=None
 )
 
+def is_slash_guild_owner():
+    async def predicate(interaction: discord.Interaction):
+        if interaction.guild and interaction.guild.owner_id == interaction.user.id:
+            return True
+        await interaction.response.send_message("⚠️ You do not have permission to use this command. (Server Owner only)", ephemeral=True)
+        return False
+    return app_commands.check(predicate)
+
 # --- ระบบวนลูปตรวจสอบ ลบข้อความอัตโนมัติหากไม่มีคนใช้งานในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ เกิน 1 ชั่วโมง ---
 @tasks.loop(minutes=5)
 async def auto_clean_inactive_ai_chat():
@@ -94,44 +103,58 @@ async def auto_clean_inactive_ai_chat():
 @bot.event
 async def on_ready():
     bot.add_view(VerifyView())
-    msg = f"Admin Bot connected: {bot.user} - Strict /ask & 1h Idle Auto-clean active!"
+    msg = f"Admin Bot connected: {bot.user} - AI direct chat & 1h idle clean active!"
     print(msg)
     write_log(msg)
     
-    bot.tree.clear_commands(guild=None)
-    await bot.tree.sync(guild=None)
-    
-    for guild in bot.guilds:
-        bot.tree.clear_commands(guild=guild)
-        synced = await bot.tree.sync(guild=guild)
-        print(f"Cleared all slash commands for Admin bot in {guild.name} (Remaining: {len(synced)})")
+    try:
+        for guild in bot.guilds:
+            bot.tree.copy_global_to(guild=guild)
+            await bot.tree.sync(guild=guild)
+    except Exception as e:
+        print(f"Failed sync: {e}")
         
     if not auto_clean_inactive_ai_chat.is_running():
         auto_clean_inactive_ai_chat.start()
         
     gc.collect()
-    await bot.change_presence(activity=discord.Game(name="🛡️ ระบบ Auto-Clean ช่อง AI (1 ชม. ไม่มีคนใช้)"))
+    await bot.change_presence(activity=discord.Game(name="🤖 ระบบ AI Direct Chat & Auto-Clean 1 ชม."))
 
-# --- ระบบ Auto-Delete ข้อความธรรมดาของผู้ใช้ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ (ยกเว้นข้อความจากบอท) ---
-@bot.event
-async def on_message(message: discord.Message):
-    if message.author.bot or not message.guild:
-        return
+# --- Slash Command: /setup_aichat (ส่งและการ์ดปักหมุดคู่มือวิธีใช้งาน AI CHAT BOT) ---
+@bot.tree.command(name="setup_aichat", description="ส่งและปักหมุดการ์ดคู่มือวิธีใช้งาน AI Chat ในช่อง 🤖︱ᴀɪ-ᴄʜᴀᴛ")
+@is_slash_guild_owner()
+async def slash_setup_aichat(interaction: discord.Interaction):
+    channel = interaction.channel
 
-    ch_name = message.channel.name.lower()
-    if "ai-chat" in ch_name or "ᴀɪ-ᴄʜᴀᴛ" in message.channel.name:
-        try:
-            await message.delete()
-            write_log(f"Auto-mod deleted non-slash user message from {message.author} in {message.channel.name}")
-            warn_msg = await message.channel.send(
-                f"⚠️ {message.author.mention} **โปรดใช้คำสั่ง `/ask [คำถามของคุณ]` เพื่อคุยกับ AI เท่านั้นครับ!**"
-            )
-            await asyncio.sleep(5)
-            await warn_msg.delete()
-        except Exception as e:
-            write_log(f"Failed auto-mod delete: {e}")
+    try:
+        await channel.purge(limit=50)
+    except Exception:
+        pass
 
-    await bot.process_commands(message)
+    embed = discord.Embed(
+        title="🤖 คู่มือการใช้งาน AI CHAT BOT",
+        description=(
+            "📌 **วิธีใช้งาน:**\n"
+            "👉 พิมพ์ข้อความถามในช่องนี้ได้เลยทันที (ไม่ต้องใช้คำสั่ง `/`)\n\n"
+            "✨ **ความสามารถ:**\n"
+            "• ตอบคำถามทั่วไป เขียนโปรแกรม แปลภาษา และสรุปเนื้อหา\n\n"
+            "🧹 **หมายเหตุระบบ:**\n"
+            "• ข้อความประวัติการคุยในช่องนี้จะถูกลบทำความสะอาดอัตโนมัติทุกๆ 1 ชั่วโมง หากไม่มีคนใช้งานในช่อง"
+        ),
+        color=discord.Color.blue()
+    )
+    embed.set_footer(text="ระบบตอบคำถาม AI อัตโนมัติ 24 ชั่วโมง")
+
+    msg = await channel.send(embed=embed)
+    try:
+        await msg.pin()
+    except Exception:
+        pass
+
+    await interaction.response.send_message(
+        f"✅ **ส่งการ์ดคู่มือ AI Chat และปักหมุดในช่อง {channel.mention} เรียบร้อยแล้ว!**",
+        ephemeral=True
+    )
 
 if __name__ == "__main__":
     if not TOKEN or TOKEN == "your_bot_token_here":
